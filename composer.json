@@ -1,0 +1,33 @@
+{
+    "name": "kapi/routing",
+    "description": "Kapi Routing Component",
+    "type": "library",
+    "keywords": [
+
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrien Sasia",
+            "email": "a.sasia.ldy@gmail.com",
+            "homepage": "https://github.com/AdrienSldy",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "email": "a.sasia.ldy@gmail.com",
+        "issues": "https://github.com/kapiphp/routing/issues",
+        "forum": "https://stackoverflow.com/tags/kapi+routing",
+        "wiki": "https://github.com/kapiphp/routing/wiki",
+        "source": "https://github.com/kapiphp/routing"
+    },
+    "require": {
+        "php": "~7.1",
+        "kapi/http": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Kapi\\Routing\\": ""
+        }
+    }
+}
