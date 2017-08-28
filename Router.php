@@ -36,21 +36,30 @@ class Router
         $this->response = new Response();
     }
 
-    public function get($path, $callable, $name = null)
+    public function get($path, $callable)
     {
-        return $this->add($path, $callable, $name, 'GET');
+        return $this->route('GET', $path, $callable);
     }
 
-    private function add($path, $callable, $name, $method)
+    public function post($path, $callable)
     {
+        return $this->route('POST', $path, $callable);
+    }
+
+    public function route($method, $path, $callable)
+    {
+        if (is_array($path)) {
+            foreach ($path as $_path) {
+                $this->route($method, $_path, $callable);
+            }
+        }
+
         $route = new Route($path, $callable);
         $this->routes[$method][] = $route;
-        if(is_string($callable) && $name === null){
-            $name = $callable;
+        if(is_string($callable)){
+            $this->namedRoutes[$callable] = $route;
         }
-        if($name){
-            $this->namedRoutes[$name] = $route;
-        }
+
         return $route;
     }
 
