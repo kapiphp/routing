@@ -42,12 +42,13 @@ class Router
      */
     private static $namedRoutes = [];
 
-
-    public function __construct()
-    {
-        $this->request = new Request();
-        $this->response = new Response();
-    }
+    /**
+     * Router constructor.
+     *
+     * Block the constructor to avoid instantiation and force the static use
+     * of the router.
+     */
+    final private function __construct(){}
 
     /**
      * Builds and appends many kinds of routes magically.
