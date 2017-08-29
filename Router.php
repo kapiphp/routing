@@ -7,6 +7,19 @@ use Kapi\Http\Response;
 use Kapi\Routing\Exception\RoutingException;
 use Kapi\Routing\Route\Route;
 
+/**
+ * A router that contains many instances of routes.
+ *
+ * @method Route get(string|string[] $path, $callable)
+ * @method Route post(string|string[] $path, $callable)
+ * @method Route put(string|string[] $path, $callable)
+ * @method Route patch(string|string[] $path, $callable)
+ * @method Route delete(string|string[] $path, $callable)
+ * @method Route head(string|string[] $path, $callable)
+ * @method Route options(string|string[] $path, $callable)
+ * @method Route trace(string|string[] $path, $callable)
+ * @method Route any(string|string[] $path, $callable)
+ */
 class Router
 {
     /**
@@ -37,12 +50,16 @@ class Router
     }
 
     /**
-     * @inheritDoc
+     * Builds and appends many kinds of routes magically.
+     *
+     * @param string $method The HTTP method for the new route
+     * @param $arguments
+     * @return Route
      */
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic($method, $arguments)
     {
         list($path, $callable) = $arguments;
-        return static::route($name, $path, $callable);
+        return static::route($method, $path, $callable);
     }
 
     public static function route($method, $path, $callable)
