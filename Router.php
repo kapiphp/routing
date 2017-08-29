@@ -22,12 +22,12 @@ class Router
     /**
      * @var Route[][]
      */
-    private $routes = [];
+    private static $routes = [];
 
     /**
      * @var array
      */
-    private $namedRoutes = [];
+    private static $namedRoutes = [];
 
 
     public function __construct()
@@ -36,41 +36,40 @@ class Router
         $this->response = new Response();
     }
 
-    public function get($path, $callable)
+    /**
+     * @inheritDoc
+     */
+    public static function __callStatic($name, $arguments)
     {
-        return $this->route('GET', $path, $callable);
+        list($path, $callable) = $arguments;
+        return static::route($name, $path, $callable);
     }
 
-    public function post($path, $callable)
-    {
-        return $this->route('POST', $path, $callable);
-    }
-
-    public function route($method, $path, $callable)
+    public static function route($method, $path, $callable)
     {
         if (is_array($path)) {
             foreach ($path as $_path) {
-                $this->route($method, $_path, $callable);
+                static::route($method, $_path, $callable);
             }
         }
 
         $route = new Route($path, $callable);
-        $this->routes[$method][] = $route;
+        static::$routes[strtoupper($method)][] = $route;
         if(is_string($callable)){
-            $this->namedRoutes[$callable] = $route;
+            static::$namedRoutes[$callable] = $route;
         }
 
         return $route;
     }
 
-    public function run()
+    public static function run()
     {
         $url = $_SERVER['REQUEST_URI'];
 
-        if(!isset($this->routes[$_SERVER['REQUEST_METHOD']])){
+        if(!isset(static::$routes[$_SERVER['REQUEST_METHOD']])){
             throw new RoutingException('REQUEST_METHOD does not exist');
         }
-        foreach($this->routes[$_SERVER['REQUEST_METHOD']] as $route){
+        foreach(static::$routes[$_SERVER['REQUEST_METHOD']] as $route){
             if($route->match($url)){
                 return $route->call();
             }
@@ -80,9 +79,9 @@ class Router
 
     public function url($name, $params = [])
     {
-        if(!isset($this->namedRoutes[$name])){
+        if(!isset(static::$namedRoutes[$name])){
             throw new RoutingException('No route matches this name');
         }
-        return $this->namedRoutes[$name]->getUrl($params);
+        return static::$namedRoutes[$name]->getUrl($params);
     }
 }
