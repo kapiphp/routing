@@ -25,7 +25,7 @@ class Router
     /**
      * @var Request
      */
-    private $request;
+    private static $request;
 
     /**
      * @var Response
@@ -79,25 +79,33 @@ class Router
 
         return $route;
     }
-
+    
     public static function run()
     {
-        $url = $_SERVER['REQUEST_URI'];
+        static::request();
 
-        if(!isset(static::$routes[$_SERVER['REQUEST_METHOD']])){
+        if (!isset(static::$routes[static::$request->getMethod()])) {
             throw new RoutingException('REQUEST_METHOD does not exist');
         }
-        foreach(static::$routes[$_SERVER['REQUEST_METHOD']] as $route){
-            if($route->match($url)){
+        foreach (static::$routes[static::$request->getMethod()] as $route) {
+            if($route->match(static::$request->getUri()->__toString())){
                 return $route->call();
             }
         }
         throw new RoutingException('No matching routes');
     }
 
+    private static function request()
+    {
+        $request = new Request();
+        $request = $request->setUri($_SERVER['REQUEST_URI'])->withMethod($_SERVER['REQUEST_METHOD']);
+
+        static::$request = $request;
+    }
+
     public function url($name, $params = [])
     {
-        if(!isset(static::$namedRoutes[$name])){
+        if (!isset(static::$namedRoutes[$name])) {
             throw new RoutingException('No route matches this name');
         }
         return static::$namedRoutes[$name]->getUrl($params);
