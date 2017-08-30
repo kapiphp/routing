@@ -2,23 +2,33 @@
 
 namespace Kapi\Routing\Route;
 
+use Kapi\Http\Request;
+
 class Route
 {
-
+    private $method;
     private $path;
     private $callable;
     private $matches = [];
     private $params = [];
 
-    public function __construct($path, $callable)
+    /**
+     * @var array
+     */
+    private $pattern;
+
+    public function __construct($method, $path, $callable)
     {
+        $this->method = $method;
         $this->path = trim($path, '/');
         $this->callable = $callable;
     }
 
-    public function match($url)
+    public function match(Request $request)
     {
+        $url = $request->getUri()->__toString();
         $url = trim($url, '/');
+
         $path = preg_replace_callback('#:([\w]+)#', [$this, 'paramMatch'], $this->path);
         $regex = "#^$path$#i";
         if(!preg_match($regex, $url, $matches)){
@@ -53,6 +63,16 @@ class Route
     {
         $this->params[$param] = str_replace('(', '(?:', $regex);
         return $this;
+    }
+
+    public function getPattern($key)
+    {
+        return $this->pattern[$key] ?? null;
+    }
+
+    public function setPattern($key, $regex)
+    {
+        $this->pattern[$key] = $regex;
     }
 
     public function getUrl($params)

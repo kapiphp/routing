@@ -33,7 +33,7 @@ class Router
     private $response;
 
     /**
-     * @var Route[][]
+     * @var Route[]
      */
     private static $routes = [];
 
@@ -71,24 +71,21 @@ class Router
             }
         }
 
-        $route = new Route($path, $callable);
-        static::$routes[strtoupper($method)][] = $route;
+        $route = new Route($method, $path, $callable);
+        static::$routes[] = $route;
         if(is_string($callable)){
             static::$namedRoutes[$callable] = $route;
         }
 
         return $route;
     }
-    
+
     public static function run()
     {
         static::request();
 
-        if (!isset(static::$routes[static::$request->getMethod()])) {
-            throw new RoutingException('REQUEST_METHOD does not exist');
-        }
-        foreach (static::$routes[static::$request->getMethod()] as $route) {
-            if($route->match(static::$request->getUri()->__toString())){
+        foreach (static::$routes as $route) {
+            if($route->match(static::$request)){
                 return $route->call();
             }
         }
