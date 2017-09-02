@@ -2,7 +2,7 @@
 
 namespace Kapi\Routing\Route;
 
-use Kapi\Http\Request;
+use Psr\Http\Message\ServerRequestInterface;
 
 class Route
 {
@@ -24,7 +24,7 @@ class Route
         $this->callable = $callable;
     }
 
-    public function match(Request $request)
+    public function match(ServerRequestInterface $request)
     {
         $url = $request->getUri()->__toString();
         $url = trim($url, '/');

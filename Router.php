@@ -2,10 +2,11 @@
 
 namespace Kapi\Routing;
 
-use Kapi\Http\Request;
 use Kapi\Http\Response;
+use Kapi\Http\ServerRequest;
 use Kapi\Routing\Exception\RoutingException;
 use Kapi\Routing\Route\Route;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * A router that contains many instances of routes.
@@ -23,14 +24,14 @@ use Kapi\Routing\Route\Route;
 class Router
 {
     /**
-     * @var Request
+     * @var ServerRequest
      */
     private static $request;
 
     /**
      * @var Response
      */
-    private $response;
+    private static $response;
 
     /**
      * @var Route[]
@@ -94,10 +95,28 @@ class Router
 
     private static function request()
     {
-        $request = new Request();
-        $request = $request->setUri($_SERVER['REQUEST_URI'])->withMethod($_SERVER['REQUEST_METHOD']);
+        static::$request = new ServerRequest($_SERVER, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+    }
 
-        static::$request = $request;
+    /**
+     * @param ServerRequestInterface $request
+     * @return mixed
+     * @throws RoutingException
+     */
+    public static function parse(ServerRequestInterface $request)
+    {
+        foreach (static::$routes as $route) {
+            if($route->match($request)){
+                return $route->call();
+            }
+        }
+        throw new RoutingException('No matching routes');
+    }
+
+    private static function response()
+    {
+        $response = new Response();
+        static::$response = $response;
     }
 
     public function url($name, $params = [])
