@@ -24,11 +24,6 @@ use Psr\Http\Message\ServerRequestInterface;
 class Router
 {
     /**
-     * @var ServerRequest
-     */
-    private static $request;
-
-    /**
      * @var Response
      */
     private static $response;
@@ -81,21 +76,14 @@ class Router
         return $route;
     }
 
-    public static function run()
+    public static function run(ServerRequestInterface $request = null)
     {
-        static::request();
-
-        foreach (static::$routes as $route) {
-            if($route->match(static::$request)){
-                return $route->call();
-            }
-        }
-        throw new RoutingException('No matching routes');
+        return static::parse($request ?? static::request());
     }
 
     private static function request()
     {
-        static::$request = new ServerRequest($_SERVER, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
+        return new ServerRequest($_SERVER, $_SERVER['REQUEST_URI'], $_SERVER['REQUEST_METHOD']);
     }
 
     /**

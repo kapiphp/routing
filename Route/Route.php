@@ -10,7 +10,6 @@ class Route
     private $path;
     private $callable;
     private $matches = [];
-    private $params = [];
 
     /**
      * @var array
@@ -41,8 +40,8 @@ class Route
 
     private function paramMatch($match)
     {
-        if(isset($this->params[$match[1]])){
-            return '(' . $this->params[$match[1]] . ')';
+        if(isset($this->pattern[$match[1]])){
+            return '(' . $this->pattern[$match[1]] . ')';
         }
         return '([^/]+)';
     }
@@ -57,12 +56,6 @@ class Route
         } else {
             return call_user_func_array($this->callable, $this->matches);
         }
-    }
-
-    public function with($param, $regex)
-    {
-        $this->params[$param] = str_replace('(', '(?:', $regex);
-        return $this;
     }
 
     public function getPattern($key)
